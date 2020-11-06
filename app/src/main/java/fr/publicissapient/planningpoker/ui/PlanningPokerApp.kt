@@ -28,7 +28,7 @@ fun PlanningPokerApp() {
                         val cardSuitType = when (cardSuitTypeString) {
                             "fibonacci" -> CardSuitType.Fibonacci
                             "t-shirt" -> CardSuitType.TShirt
-                            else -> error("Unknown card suit type!")
+                            else -> error("Unknown card suit type! : $cardSuitTypeString")
                         }
                         CardListScreen(
                             cardSuitType,
@@ -47,7 +47,7 @@ fun PlanningPokerApp() {
                         val cardSuitType = when (cardSuitTypeString) {
                             "fibonacci" -> CardSuitType.Fibonacci
                             "t-shirt" -> CardSuitType.TShirt
-                            else -> error("Unknown card suit type!")
+                            else -> error("Unknown card suit type! : $cardSuitTypeString")
                         }
                         bundle.getString(screenCard.navArgCardId)?.let { cardId ->
                             CardScreen(
