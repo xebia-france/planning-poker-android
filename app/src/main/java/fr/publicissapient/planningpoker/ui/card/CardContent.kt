@@ -1,24 +1,23 @@
 package fr.publicissapient.planningpoker.ui.card
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.InteractionState
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Card
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.WithConstraints
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawShadow
 import androidx.compose.ui.drawLayer
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.ui.tooling.preview.Preview
@@ -29,6 +28,7 @@ import fr.publicissapient.planningpoker.model.CardSuitType
 import fr.publicissapient.planningpoker.ui.theme.PlanningPokerTheme
 import fr.publicissapient.planningpoker.ui.theme.getThemeColor
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun CardContent(
     cardSuit: CardSuit,
@@ -36,19 +36,32 @@ fun CardContent(
     onClick: () -> Unit,
     ratio: Float = 1f
 ) {
+    val shape = RoundedCornerShape(32.dp * ratio)
+    val defaultElevation = ButtonConstants.defaultElevation(4.dp)
+    val interactionState = remember { InteractionState() }
+    val elevation = defaultElevation.elevation(true, interactionState)
     Card(
         modifier = Modifier
             .padding(16.dp * ratio)
-            .clickable(onClick = onClick)
             .width(316.dp * ratio)
-            .height(460.dp * ratio),
-        shape = RoundedCornerShape(32.dp * ratio),
-        elevation = 8.dp
+            .height(470.dp * ratio)
+            // We need to draw the shadow manually otherwise it'll not be drawn by the Card since
+            // we clip the modifier for the ripple. This could be avoided if the card would let us
+            // pass the clickable as an "afterModifier" that would be applied after the Card internals.
+            .drawShadow(elevation, shape)
+            .clip(shape)
+            .clickable(
+                onClick = onClick,
+                interactionState = interactionState
+            ),
+        shape = shape,
+        backgroundColor = Color.White,
+        elevation = elevation
     ) {
         Surface(
+            modifier = Modifier.padding(16.dp * ratio),
             color = cardSuit.color.getThemeColor(),
-            border = BorderStroke(16.dp * ratio, color = Color.White),
-            shape = RoundedCornerShape(24.dp * ratio)
+            shape = RoundedCornerShape(16.dp * ratio)
         ) {
             Column(
                 modifier = Modifier.fillMaxSize(),
@@ -57,12 +70,12 @@ fun CardContent(
                 Count(card.name, ratio = ratio)
                 Image(
                     asset = imageResource(id = card.imageResourceId),
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 30.dp * ratio),
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp * ratio),
                     contentScale = ContentScale.FillWidth
                 )
                 Text(
                     card.description,
-                    modifier = Modifier.padding(horizontal = 30.dp * ratio),
+                    modifier = Modifier.padding(horizontal = 16.dp * ratio),
                     style = MaterialTheme.typography.body1.copy(
                         textAlign = TextAlign.Center,
                         fontSize = MaterialTheme.typography.body1.fontSize * ratio
@@ -79,7 +92,7 @@ private fun Count(cardName: String, modifier: Modifier = Modifier, ratio: Float 
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp * ratio),
+            .padding(horizontal = 8.dp * ratio),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         val style = MaterialTheme.typography.body1.copy(
